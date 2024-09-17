@@ -1,0 +1,27 @@
+{
+  "s3_bucket": "web-survey.aleainstitute.ai",
+  "domain_path": "domains.trie",
+  "user_agent": "ALEA-AI-Web-Survey/0.1.0 (https://aleainstitute.ai; hello@aleainstitute.ai; https://github.com/alea-institute/alea-web-survey)",
+  "dns_resolve_timeout": 5.0,
+  "http_pool_size": 5,
+  "http_keep_alive": 10,
+  "http_network_timeout": 5,
+  "http_connect_timeout": 5,
+  "http_read_timeout": 5,
+  "http_write_timeout": 5,
+  "playwright_timeout": 5,
+  "path_list": [
+    "/",
+    "/robots.txt",
+    "/ai.txt",
+    "/humans.txt",
+    "/security.txt"
+  ],
+  "domain_weights": {
+    "get_random_known_domain": 0.9,
+    "get_random_known_domain_tld": 0.04,
+    "get_random_words_domain": 0.02,
+    "get_random_domain_tld_suffix": 0.02,
+    "get_random_ipv4_domain": 0.02
+  }
+}
