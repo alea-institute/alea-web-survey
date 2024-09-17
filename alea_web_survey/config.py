@@ -20,10 +20,11 @@ def default_weights() -> dict:
 
     return {
         "get_random_known_domain": 90 / 100.0,
-        "get_random_known_domain_tld": 2.5 / 100.0,
-        "get_random_words_domain": 2.5 / 100.0,
-        "get_random_domain_tld_suffix": 2.5 / 100.0,
-        "get_random_ipv4_domain": 2.5 / 100.0,
+        "get_random_known_domain_tld": 2 / 100.0,
+        "get_random_words_domain": 2 / 100.0,
+        "get_random_chars_domain": 2 / 100.0,
+        "get_random_domain_tld_suffix": 2 / 100.0,
+        "get_random_ipv4_domain": 2 / 100.0,
     }
 
 

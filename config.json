@@ -19,8 +19,9 @@
   ],
   "domain_weights": {
     "get_random_known_domain": 0.9,
-    "get_random_known_domain_tld": 0.04,
+    "get_random_known_domain_tld": 0.02,
     "get_random_words_domain": 0.02,
+    "get_random_chars_domain": 0.02,
     "get_random_domain_tld_suffix": 0.02,
     "get_random_ipv4_domain": 0.02
   }

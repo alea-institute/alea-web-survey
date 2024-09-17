@@ -199,16 +199,20 @@ class DomainGenerator:
             [c.lower() for c in input_string if c.isalnum() or c in ["-", "."]]
         )
 
-    def get_random_words_domain(self, num_words: int = 2) -> str:
+    def get_random_words_domain(self, min_words: int = 1, max_words: int = 3) -> str:
         """
         Generate a domain from random word(s) from the dictionary.
 
         Args:
-            num_words (int): Number of words to combine.
+            min_words (int): Minimum number of words to use.
+            max_words (int): Maximum number of words to use.
 
         Returns:
             str: A domain name generated from random words.
         """
+        # sample number of words
+        num_words = random.randint(min_words, max_words)
+
         # get the random words
         words = random.sample(self.dictionary_words, num_words)
 
@@ -220,6 +224,29 @@ class DomainGenerator:
 
         # combine the words
         return f"{self.string_to_domain(separator.join(words))}.{tld}"
+
+    def get_random_chars_domain(self, min_chars: int = 1, max_chars: int = 10) -> str:
+        """
+        Generate a domain from random characters.
+
+        Args:
+            min_chars (int): Minimum number of characters to use.
+            max_chars (int): Maximum number of characters
+
+        Returns:
+            str: A domain name generated from random characters.
+        """
+        # sample number of characters
+        num_chars = random.randint(min_chars, max_chars)
+
+        # get the random characters
+        characters = random.sample("abcdefghijklmnopqrstuvwxyz", num_chars)
+
+        # get a random tld
+        tld = random.choice(self.known_tlds)
+
+        # combine the charachters
+        return f"{''.join(characters)}.{tld}"
 
     def get_random_domain_tld_suffix(self) -> str:
         """
