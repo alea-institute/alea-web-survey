@@ -157,7 +157,7 @@ class WebResourceCollector:
             A WebResource object or None if the resource could not be fetched.
         """
         # log it
-        LOGGER.info("Fetching {url} with Playwright...")
+        LOGGER.info("Fetching %s with Playwright...", url)
 
         # retrieve the page
         async with async_playwright() as p:
