@@ -44,5 +44,5 @@ RUN mkdir -p /root/.alea/web-survey \
     && \
     bash -l -c "poetry run python3 scripts/generate_domain_trie.py"
 
-CMD ["bash", "-l", "-c", "PYTHONPATH=. poetry run python3 alea_web_survey/cli.py collect_parallel --push_every 100 --max_workers 16"]
+CMD ["bash", "-l", "-c", "PYTHONPATH=. poetry run python3 alea_web_survey/cli.py collect_parallel --push_every 1000 --max_workers 4"]
 # docker exec alea-web-survey tail -f alea_web_survey.log
