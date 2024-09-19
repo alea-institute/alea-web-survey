@@ -32,6 +32,7 @@ DEFAULT_NETWORK_TIMEOUT = CONFIG.http_network_timeout
 DEFAULT_PLAYWRIGHT_TIMEOUT = CONFIG.playwright_timeout
 DEFAULT_USER_AGENT = CONFIG.user_agent
 DEFAULT_PATH_LIST = CONFIG.path_list
+DEFAULT_MAX_SITEMAPS = 10
 
 # set up default timeout config
 DEFAULT_TIMEOUT_CONFIG = httpx.Timeout(
@@ -375,7 +376,7 @@ class WebResourceCollector:
                 # get the sitemap list
                 site_maps = robots_parser.site_maps()
                 if site_maps:
-                    for sitemap_url in site_maps:
+                    for sitemap_url in site_maps[:DEFAULT_MAX_SITEMAPS]:
                         # parse the url
                         parsed_url = urllib.parse.urlparse(sitemap_url)
 
