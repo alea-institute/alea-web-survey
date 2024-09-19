@@ -7,6 +7,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import urllib.parse
 import urllib.robotparser
 from functools import cache
 from typing import AsyncIterator, List, Optional, Tuple
@@ -315,6 +316,9 @@ class WebResourceCollector:
         Returns:
             An async iterator of WebResource objects.
         """
+        # set default delay
+        domain_delay = CONFIG.http_delay
+
         # set default paths if none are provided
         if paths is None:
             paths = DEFAULT_PATH_LIST
@@ -351,36 +355,59 @@ class WebResourceCollector:
         ) as client:
             # push tasks to fetch resources
             LOGGER.info("Fetching resources from %s...", domain)
-            tasks = [
-                self.fetch_resource(
-                    client=client, url=f"{base_url}{path}", ip_address=ip_address
+
+            # always start with robots.txt
+            robots_resource = await self.fetch_resource(
+                client=client, url=f"{base_url}/robots.txt", ip_address=ip_address
+            )
+            if robots_resource:
+                # parse the robots.txt file
+                robots_parser = urllib.robotparser.RobotFileParser()
+                robots_parser.parse(
+                    robots_resource.content.decode("utf-8").splitlines()
                 )
-                for path in paths
-            ]
-            sitemap_urls: list[str] = []
+
+                # get the page delay
+                if robots_parser.crawl_delay("*") is not None:
+                    domain_delay = robots_parser.crawl_delay("*")
+                    LOGGER.info("Crawl delay for %s: %f", domain, domain_delay)
+
+                # get the sitemap list
+                site_maps = robots_parser.site_maps()
+                if site_maps:
+                    for sitemap_url in site_maps:
+                        # parse the url
+                        parsed_url = urllib.parse.urlparse(sitemap_url)
+
+                        # check if it's a relative path or absolute path
+                        if parsed_url.scheme and parsed_url.netloc:
+                            paths.append(parsed_url.path)
+                        else:
+                            paths.append(parsed_url.path)
+
+            # fetch the resources
+            tasks = []
+            for path in paths:
+                # skip robots.txt since we've already fetched it
+                if path == "/robots.txt":
+                    continue
+
+                # add delay between requests
+                tasks.append(
+                    self.fetch_resource(
+                        client=client, url=f"{base_url}{path}", ip_address=ip_address
+                    )
+                )
+
+                # avoid reverse DoS via extreme delays like Crawl-Delay: 999999
+                LOGGER.info(
+                    "Delaying %f seconds for %s...",
+                    min(CONFIG.http_delay_max, domain_delay),
+                    domain,
+                )
+                await asyncio.sleep(min(CONFIG.http_delay_max, domain_delay))
 
             # wait for all tasks to complete
-            for coro in asyncio.as_completed(tasks):
-                web_resource = await coro
-                if web_resource:
-                    # add sitemap list if robots.txt is fetched and found
-                    if web_resource.url.endswith("/robots.txt"):
-                        # extend the sitemap list
-                        robots_parser = urllib.robotparser.RobotFileParser()
-                        robots_parser.parse(
-                            web_resource.content.decode("utf-8").splitlines()
-                        )
-                        if robots_parser.site_maps() is not None:
-                            sitemap_urls.extend(robots_parser.site_maps())  # type: ignore
-
-                    # add the page to the list
-                    yield web_resource
-                    pages.append(web_resource)
-
-            # parse any sitemaps found
-            tasks = [
-                self.fetch_resource(client, sitemap_url) for sitemap_url in sitemap_urls
-            ]
             for coro in asyncio.as_completed(tasks):
                 web_resource = await coro
                 if web_resource:

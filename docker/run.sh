@@ -1,12 +1,13 @@
 # build
 docker build -t alea-web-survey-ubuntu2404 -f docker/Dockerfile .
 
-# get home path expanded
-
+# remove prior running container
+docker rm -f alea-web-survey
 
 # run with bind mount for config.json into /app/config.json
 source .env
 docker run \
+  --name alea-web-survey \
   -v $(pwd)/config.json:/app/config.json \
   -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \

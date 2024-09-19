@@ -9,6 +9,7 @@ import sys
 
 # project
 from alea_web_survey.tasks.collect_web import collect_sites
+from alea_web_survey.tasks.collect_web_parallel import collect_sites_parallel
 from alea_web_survey.tasks.get_resource import get_resource
 from alea_web_survey.tasks.push_s3 import push_cache
 
@@ -44,6 +45,29 @@ def main():
         help="Number of sites to collect before pushing.",
     )
 
+    # collect_parallel
+    collect_parallel_parser = subparsers.add_parser(
+        "collect_parallel", help="Collect web resources in parallel."
+    )
+    collect_parallel_parser.add_argument(
+        "--max_sites",
+        type=int,
+        default=None,
+        help="Maximum number of sites to collect.",
+    )
+    collect_parallel_parser.add_argument(
+        "--push_every",
+        type=int,
+        default=None,
+        help="Maximum number of sites to collect.",
+    )
+    collect_parallel_parser.add_argument(
+        "--max_workers",
+        type=int,
+        default=8,
+        help="Maximum number of worker threads.",
+    )
+
     # push
     push_parser = subparsers.add_parser("push", help="Push collected resources.")
     push_parser.add_argument(
@@ -65,6 +89,17 @@ def main():
             batch_number = 0
             while True:
                 asyncio.run(collect_sites(max_sites=args.push_every))
+                asyncio.run(push_cache(remove_after=True))
+                batch_number += 1
+        else:
+            # run normally
+            asyncio.run(collect_sites(args.max_sites))
+    elif args.task == "collect_parallel":
+        if args.push_every:
+            # loop in batches of push_every
+            batch_number = 0
+            while True:
+                asyncio.run(collect_sites_parallel(args.push_every, args.max_workers))
                 asyncio.run(push_cache(remove_after=True))
                 batch_number += 1
         else:

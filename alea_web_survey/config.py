@@ -60,13 +60,15 @@ class WebSurveyConfig:
         "ALEA-AI-Web-Survey/0.1.0 (https://aleainstitute.ai; hello@aleainstitute.ai)"
     )
     dns_resolve_timeout: float = 5.0
+    http_delay: float = 0.1
+    http_delay_max: float = 10.0
     http_pool_size: int = 5
     http_keep_alive: int = 10
     http_network_timeout: int = 5
     http_connect_timeout: int = 5
     http_read_timeout: int = 5
     http_write_timeout: int = 5
-    playwright_timeout: int = 5
+    playwright_timeout: int = 5 * 1000
     path_list: list[str] = dataclasses.field(default_factory=default_path_list)
     domain_weights: dict = dataclasses.field(default_factory=default_weights)
 
@@ -88,6 +90,3 @@ class WebSurveyConfig:
 
 # load the configuration as a module-level variable
 CONFIG = WebSurveyConfig.from_json(Path(__file__).parent.parent / "config.json")
-
-# if you want to output for editing, you can do this:
-# print(json.dumps(dataclasses.asdict(CONFIG), default=str, indent=2))
