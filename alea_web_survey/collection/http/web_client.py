@@ -357,6 +357,9 @@ class WebResourceCollector:
             # push tasks to fetch resources
             LOGGER.info("Fetching resources from %s...", domain)
 
+            # set domain paths
+            domain_paths: list[str] = list(paths)
+
             # always start with robots.txt
             robots_resource = await self.fetch_resource(
                 client=client, url=f"{base_url}/robots.txt", ip_address=ip_address
@@ -382,13 +385,14 @@ class WebResourceCollector:
 
                         # check if it's a relative path or absolute path
                         if parsed_url.scheme and parsed_url.netloc:
-                            paths.append(parsed_url.path)
+                            domain_paths.append(parsed_url.path)
                         else:
-                            paths.append(parsed_url.path)
+                            domain_paths.append(parsed_url.path)
 
             # fetch the resources
             tasks = []
-            for path in paths:
+            LOGGER.info("Fetching %d paths from %s...", len(domain_paths), domain)
+            for path in domain_paths:
                 # skip robots.txt since we've already fetched it
                 if path == "/robots.txt":
                     continue
